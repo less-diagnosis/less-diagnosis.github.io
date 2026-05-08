@@ -84,7 +84,6 @@ const state = {
 
 const screens = {
   landing: document.getElementById("landing-screen"),
-  quiz: document.getElementById("quiz-screen"),
   result: document.getElementById("result-screen")
 };
 
@@ -125,7 +124,7 @@ function startQuiz() {
   state.current = 0;
   state.answers = Array(QUESTIONS.length).fill(null);
   renderQuiz();
-  showScreen("quiz");
+  showScreen("landing");
 }
 
 function renderQuiz() {
@@ -251,15 +250,6 @@ function renderResult() {
     .map(action => `<li>${escapeHtml(action)}</li>`)
     .join("");
 }
-
-document.querySelectorAll('[data-action="start"]').forEach(button => {
-  button.addEventListener("click", startQuiz);
-});
-
-document.querySelector('[data-action="back-landing"]').addEventListener("click", () => {
-  clearTimeout(state.advanceTimer);
-  showScreen("landing");
-});
 
 document.querySelector('[data-action="restart"]').addEventListener("click", startQuiz);
 

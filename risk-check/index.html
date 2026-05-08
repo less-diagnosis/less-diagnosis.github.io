@@ -52,8 +52,6 @@
           <p class="body-copy">この診断は、セックスレスを解決するものではありません。妻に何かを言う前に、まず自分の焦り・態度・家庭内での空気を確認するためのセルフチェックです。</p>
         </div>
 
-        <button class="primary-button cta-shine" type="button" data-action="start">診断を始める</button>
-
         <div class="meta-row" aria-label="診断の概要">
           <div><strong>15</strong><span>QUESTIONS</span></div>
           <div><strong>3分</strong><span>目安</span></div>
@@ -72,25 +70,17 @@
           <p>この診断は、医療・心理・法律の専門診断ではありません。深刻な精神不調等がある場合は、専門家や公的相談窓口への相談も検討してください。</p>
         </section>
 
-        <footer class="mini-footer">
-          <span></span>
-          <p>© 2026 レス悪化危険度チェック</p>
-          <span></span>
-        </footer>
-      </section>
-
-      <section class="screen quiz-screen is-hidden" id="quiz-screen" aria-labelledby="quiz-heading">
-        <div class="quiz-top">
-          <button class="ghost-button" type="button" data-action="back-landing">戻る</button>
+        <section class="quiz-block" id="quiz-screen" aria-labelledby="quiz-heading">
+          <div class="quiz-top">
           <div class="quiz-status">
             <span id="quiz-count">0 / 15</span>
             <div class="progress-track" aria-hidden="true">
               <div class="progress-bar" id="progress-bar"></div>
             </div>
           </div>
-        </div>
+          </div>
 
-        <div class="quiz-intro">
+          <div class="quiz-intro">
           <div class="gold-divider" aria-hidden="true">
             <span></span>
             <b>15 QUESTIONS</b>
@@ -98,13 +88,14 @@
           </div>
           <h1 id="quiz-heading">いくつか、教えてください。</h1>
           <p>正解はありません。今の感覚に近いものを選んでください。</p>
-        </div>
+          </div>
 
-        <div class="question-list" id="question-list"></div>
+          <div class="question-list" id="question-list"></div>
 
-        <div class="quiz-submit" id="quiz-submit">
+          <div class="quiz-submit" id="quiz-submit">
           <button class="primary-button" type="button" data-action="show-result" disabled>すべて回答すると結果を表示できます</button>
-        </div>
+          </div>
+        </section>
 
         <footer class="mini-footer">
           <span></span>
