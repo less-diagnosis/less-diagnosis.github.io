@@ -104,9 +104,12 @@ function escapeHtml(value) {
 
 function showScreen(name) {
   Object.entries(screens).forEach(([key, element]) => {
+    if (!element) return;
     element.classList.toggle("is-hidden", key !== name);
   });
-  app.scrollTo({ top: 0, behavior: "auto" });
+  if (app && typeof app.scrollTo === "function") {
+    app.scrollTo({ top: 0, behavior: "auto" });
+  }
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -251,9 +254,13 @@ function renderResult() {
     .join("");
 }
 
-document.querySelector('[data-action="restart"]').addEventListener("click", startQuiz);
+const restartButton = document.querySelector('[data-action="restart"]');
+if (restartButton) {
+  restartButton.addEventListener("click", startQuiz);
+}
 
-questionList.addEventListener("click", event => {
+if (questionList) {
+  questionList.addEventListener("click", event => {
   const answerButton = event.target.closest('[data-action="select-answer"]');
   if (answerButton) {
     selectAnswer(answerButton.dataset.index, answerButton.dataset.value);
@@ -264,12 +271,15 @@ questionList.addEventListener("click", event => {
   if (summaryButton) {
     openQuestion(summaryButton.dataset.index);
   }
-});
+  });
+}
 
-submitButton.addEventListener("click", () => {
+if (submitButton) {
+  submitButton.addEventListener("click", () => {
   if (getAnsweredCount() !== QUESTIONS.length) return;
   renderResult();
   showScreen("result");
-});
+  });
+}
 
 renderQuiz();
