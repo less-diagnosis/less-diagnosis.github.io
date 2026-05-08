@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="レス悪化危険度チェック。15問で今の状態をセルフチェックできます。">
+  <title>レス悪化危険度チェック</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div class="page-bg">
+    <main class="app-frame" id="app">
+      <section class="screen landing-screen" id="landing-screen" aria-labelledby="hero-title">
+        <div class="ornament-label">
+          <span></span>
+          <b>SELF CHECK</b>
+          <span></span>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <svg viewBox="0 0 360 190" role="img">
+            <defs>
+              <linearGradient id="cardGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#fffaf2"/>
+                <stop offset="100%" stop-color="#ead9be"/>
+              </linearGradient>
+              <linearGradient id="inkGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#33405a"/>
+                <stop offset="100%" stop-color="#c9714e"/>
+              </linearGradient>
+            </defs>
+            <rect x="38" y="24" width="284" height="142" rx="24" fill="url(#cardGrad)" stroke="#d8bd8d"/>
+            <circle cx="118" cy="85" r="34" fill="#f4dfcc" stroke="#c8a878" stroke-width="3"/>
+            <circle cx="242" cy="85" r="34" fill="#e8e2d5" stroke="#c8a878" stroke-width="3"/>
+            <path d="M104 128c11-18 39-18 50 0" stroke="#8a7f72" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <path d="M228 128c11-18 39-18 50 0" stroke="#8a7f72" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <path d="M161 91h38" stroke="#c8a878" stroke-width="5" stroke-linecap="round"/>
+            <path d="M199 91l-9-9m9 9l-9 9" stroke="#c8a878" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="180" cy="154" r="23" fill="url(#inkGrad)"/>
+            <path d="M169 154l7 7 16-18" stroke="#fff8f1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+
+        <div class="hero-copy">
+          <p class="eyebrow">妻に話す前の、15問セルフチェック</p>
+          <h1 id="hero-title">レス悪化危険度チェック</h1>
+          <p class="lead">15問で、今の自分が「妻に話していい段階」か「まず整える段階」かを確認する</p>
+          <p class="body-copy">この診断は、セックスレスを解決するものではありません。妻に何かを言う前に、まず自分の焦り・態度・家庭内での空気を確認するためのセルフチェックです。</p>
+        </div>
+
+        <button class="primary-button cta-shine" type="button" data-action="start">診断を始める</button>
+
+        <div class="meta-row" aria-label="診断の概要">
+          <div><strong>15</strong><span>QUESTIONS</span></div>
+          <div><strong>3分</strong><span>目安</span></div>
+          <div><strong>保存なし</strong><span>端末内のみ</span></div>
+        </div>
+
+        <section class="plain-section" aria-labelledby="about-title">
+          <div class="section-label">ABOUT</div>
+          <h2 id="about-title">診断の前に</h2>
+          <p>このページでは、回答を外部に送信しません。名前・メールアドレス・連絡先などの個人情報も入力しません。</p>
+          <p>結果は、妻の気持ちを断定するものではなく、夫側の行動や家庭内の空気を見直すための目安です。</p>
+        </section>
+
+        <section class="notice-section" aria-labelledby="notice-title">
+          <h2 id="notice-title">ご注意ください</h2>
+          <p>この診断は、医療・心理・法律の専門診断ではありません。深刻な精神不調等がある場合は、専門家や公的相談窓口への相談も検討してください。</p>
+        </section>
+
+        <footer class="mini-footer">
+          <span></span>
+          <p>© 2026 レス悪化危険度チェック</p>
+          <span></span>
+        </footer>
+      </section>
+
+      <section class="screen quiz-screen is-hidden" id="quiz-screen" aria-labelledby="quiz-heading">
+        <div class="quiz-top">
+          <button class="ghost-button" type="button" data-action="back-landing">戻る</button>
+          <div class="quiz-status">
+            <span id="quiz-count">0 / 15</span>
+            <div class="progress-track" aria-hidden="true">
+              <div class="progress-bar" id="progress-bar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quiz-intro">
+          <div class="gold-divider" aria-hidden="true">
+            <span></span>
+            <b>15 QUESTIONS</b>
+            <span></span>
+          </div>
+          <h1 id="quiz-heading">いくつか、教えてください。</h1>
+          <p>正解はありません。今の感覚に近いものを選んでください。</p>
+        </div>
+
+        <div class="question-list" id="question-list"></div>
+
+        <div class="quiz-submit" id="quiz-submit">
+          <button class="primary-button" type="button" data-action="show-result" disabled>すべて回答すると結果を表示できます</button>
+        </div>
+
+        <footer class="mini-footer">
+          <span></span>
+          <p>© 2026 レス悪化危険度チェック</p>
+          <span></span>
+        </footer>
+      </section>
+
+      <section class="screen result-screen is-hidden" id="result-screen" aria-labelledby="result-heading" aria-live="polite">
+        <div class="result-top">
+          <div class="result-badge">YOUR RESULT</div>
+          <button class="ghost-button" type="button" data-action="restart">診断をやり直す</button>
+        </div>
+
+        <div class="score-panel">
+          <p class="score-label">TOTAL SCORE</p>
+          <div class="score-number"><span id="score-value">0</span><small>/30</small></div>
+          <div class="danger-track" aria-hidden="true">
+            <div class="danger-bar" id="danger-bar"></div>
+          </div>
+          <p class="score-range" id="score-range">0〜7点</p>
+        </div>
+
+        <section class="result-block">
+          <p class="section-label">判定</p>
+          <h2 id="result-heading"></h2>
+          <p id="result-description"></p>
+        </section>
+
+        <section class="result-block">
+          <p class="section-label">推奨アクション</p>
+          <ul class="action-list" id="action-list"></ul>
+        </section>
+
+        <section class="common-message">
+          <h2>点数に関係なく、夫側の土台を整えることは損になりません。</h2>
+          <p>まず整えるべき土台は以下の5つです。</p>
+          <ol>
+            <li>見た目・清潔感</li>
+            <li>家庭内での空気・存在感</li>
+            <li>家事・育児の自分ごと化</li>
+            <li>妻への依存を下げる</li>
+            <li>妻のサインと、断られた後の態度</li>
+          </ol>
+          <p>詳しい解説はnote記事の有料部分でまとめています。</p>
+        </section>
+
+        <section class="note-cta" aria-labelledby="note-heading">
+          <p class="note-kicker">CONTINUE READING</p>
+          <h2 id="note-heading">詳しい読み解きと、次にやることを確認する</h2>
+          <p>この診断では、大まかな危険度まで確認できます。ただし、点数だけでは「何をやめるべきか」「どこから整えるべきか」までは分かりません。</p>
+          <p>note有料部分では、点数別の詳しい解説と、夫側がまず整える5つの土台を解説しています。</p>
+          <a class="primary-button note-button" href="TODO_NOTE_URL">noteで詳しい解説を読む</a>
+        </section>
+
+        <section class="notice-section compact" aria-labelledby="result-notice-title">
+          <h2 id="result-notice-title">この結果について</h2>
+          <p>結果は専門診断ではなく、今の行動を見直すための目安です。妻の気持ちを断定するものではありません。深刻な精神不調等がある場合は、専門家や公的相談窓口も検討してください。</p>
+        </section>
+
+        <footer class="mini-footer">
+          <span></span>
+          <p>© 2026 レス悪化危険度チェック</p>
+          <span></span>
+        </footer>
+      </section>
+    </main>
+  </div>
+
+  <noscript>
+    <p class="noscript-message">この診断を使うにはJavaScriptを有効にしてください。</p>
+  </noscript>
+</body>
+</html>
