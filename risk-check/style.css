@@ -146,6 +146,10 @@ button {
   font-weight: 800;
 }
 
+.mobile-break {
+  display: none;
+}
+
 .body-copy,
 .plain-section p,
 .notice-section p,
@@ -790,5 +794,11 @@ button {
 
   .choice-main {
     font-size: 11px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mobile-break {
+    display: block;
   }
 }
