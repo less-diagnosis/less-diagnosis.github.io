@@ -132,10 +132,11 @@ button {
   margin: 8px 0 12px;
   color: #bc7354;
   font-family: "Zen Maru Gothic", "Noto Sans JP", sans-serif;
-  font-size: 34px;
+  font-size: clamp(27px, 7.4vw, 34px);
   line-height: 1.2;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .lead {
@@ -772,7 +773,7 @@ button {
   }
 
   .hero-copy h1 {
-    font-size: 30px;
+    font-size: 26px;
   }
 
   .lead {
