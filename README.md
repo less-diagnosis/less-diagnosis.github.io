@@ -11,6 +11,13 @@
 
 GitHub Pagesで公開する場合は、リポジトリの Pages 設定で `main` ブランチの `/root` を公開元にします。
 
+## Operation
+
+このリポジトリは、`less-diagnosis.github.io` のGitHub Pages公開用正本repoです。
+静的HTML構成で、公開元は `main` ブランチのrootです。
+
+作業手順は `RUNBOOK.md` を参照してください。
+
 ## URL
 
 https://less-diagnosis.github.io/
