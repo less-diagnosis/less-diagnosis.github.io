@@ -4,8 +4,20 @@
 
 ## Files
 
-- `index.html` - 診断アプリ本体
-- `eyecatch.png` - トップ画面で使用する画像
+- `index.html` - 夫婦のセックスレスタイプ診断の本体
+- `assets/type-diagnosis/` - メイン診断で使うOGP画像とタイプ別アイコン
+- `risk-check/` - 別ページの「レス悪化危険度チェック」
+- `googleb468090bb4909fae.html` - Google Search Console確認用
+- `robots.txt`, `sitemap.xml` - 公開用の共通ファイル
+
+## Structure
+
+このrepoは1つのGitHub Pages repoですが、公開物は次の2系統に分けています。
+
+1. `/` - 夫婦のセックスレスタイプ診断
+2. `/risk-check/` - レス悪化危険度チェック
+
+メイン診断の素材は `assets/type-diagnosis/` にまとめ、`risk-check/` はその配下で完結させています。
 
 ## Publish
 

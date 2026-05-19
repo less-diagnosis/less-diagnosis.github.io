@@ -11,6 +11,15 @@ GitHub Pagesは、このrepoの `main` ブランチrootから公開する前提�
 - 旧bare repo: `C:\Users\user\Desktop\AI作業用フォルダ\【git page公開用】\less-diagnosis.github.io.git`
 - 退避フォルダ: `C:\Users\user\Desktop\AI作業用フォルダ\02_出力（AIの生成物）\03-コード・スクリプト・ツール類\less-diagnosis.github.io_backup_20260518`
 
+## 構成
+
+このrepoは1つのPages repoですが、中では次の2系統に分けています。
+
+1. `/` - 夫婦のセックスレスタイプ診断本体
+2. `/risk-check/` - レス悪化危険度チェック
+
+メイン診断で使う画像は `assets/type-diagnosis/` にまとめています。`risk-check/` 側のHTML / CSS / JavaScript / 画像は、すべて `risk-check/` 配下で管理します。
+
 ## 起動コマンド
 
 ```powershell
@@ -24,7 +33,7 @@ python -m http.server 8000
 
 - `index.html` が表示されること
 - `risk-check/` が表示されること
-- 画像が表示されること
+- `assets/type-diagnosis/` 内の画像が表示されること
 - `robots.txt` が開けること
 - `sitemap.xml` が開けること
 - 公開後に `https://less-diagnosis.github.io/` が表示されること

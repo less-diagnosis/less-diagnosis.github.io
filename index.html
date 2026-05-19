@@ -12,8 +12,8 @@
 <meta property="og:title" content="夫婦のセックスレスタイプ診断">
 <meta property="og:description" content="12の質問で、夫婦の関係が止まりやすい理由を診断。今の状態と最初の一歩がわかります。">
 <meta property="og:url" content="https://less-diagnosis.github.io/">
-<meta property="og:image" content="https://less-diagnosis.github.io/eyecatch.png">
-<meta property="og:image:secure_url" content="https://less-diagnosis.github.io/eyecatch.png">
+<meta property="og:image" content="https://less-diagnosis.github.io/assets/type-diagnosis/eyecatch.png">
+<meta property="og:image:secure_url" content="https://less-diagnosis.github.io/assets/type-diagnosis/eyecatch.png">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1536">
 <meta property="og:image:height" content="728">
@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="夫婦のセックスレスタイプ診断">
 <meta name="twitter:description" content="12の質問で、夫婦の関係が止まりやすい理由を診断。今の状態と最初の一歩がわかります。">
-<meta name="twitter:image" content="https://less-diagnosis.github.io/eyecatch.png">
+<meta name="twitter:image" content="https://less-diagnosis.github.io/assets/type-diagnosis/eyecatch.png">
 <meta name="twitter:image:alt" content="夫婦のセックスレスタイプ診断">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,6 +43,24 @@
 <script type="text/babel">
 const { useState, useEffect, useMemo } = React;
 const SITE_URL = 'https://less-diagnosis.github.io/';
+const TYPE_DIAGNOSIS_ASSET_PATH = 'assets/type-diagnosis';
+
+// ═══════════════════════════════════════════════
+// note URL管理（後からタイプ別URLへ差し替え可能）
+// ═══════════════════════════════════════════════
+const DEFAULT_NOTE_URL = 'https://note.com/xxxx';
+
+const NOTE_LINKS = {
+  fatigue_low:     DEFAULT_NOTE_URL,
+  stagnation_low:  DEFAULT_NOTE_URL,
+  distance_low:    DEFAULT_NOTE_URL,
+  mismatch_low:    DEFAULT_NOTE_URL,
+  stagnation_high: DEFAULT_NOTE_URL,
+  distance_high:   DEFAULT_NOTE_URL,
+  undecided:       DEFAULT_NOTE_URL,
+  mismatch_high:   DEFAULT_NOTE_URL,
+  low_risk:        DEFAULT_NOTE_URL,
+};
 
 // ═══════════════════════════════════════════════
 // Symbols
@@ -94,15 +112,15 @@ const Symbols = {
 };
 
 const RESULT_ICON_IMAGES = {
-  low_risk: 'icon-low-risk.png',
-  fatigue_low: 'icon-fatigue-low.png',
-  stagnation_low: 'icon-stagnation-low.png',
-  distance_low: 'icon-distance-low.png',
-  mismatch_low: 'icon-mismatch-low.png',
-  stagnation_high: 'icon-stagnation-high.png',
-  distance_high: 'icon-distance-high.png',
-  undecided: 'icon-undecided.png',
-  mismatch_high: 'icon-mismatch-high.png',
+  low_risk: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-low-risk.png`,
+  fatigue_low: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-fatigue-low.png`,
+  stagnation_low: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-stagnation-low.png`,
+  distance_low: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-distance-low.png`,
+  mismatch_low: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-mismatch-low.png`,
+  stagnation_high: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-stagnation-high.png`,
+  distance_high: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-distance-high.png`,
+  undecided: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-undecided.png`,
+  mismatch_high: `${TYPE_DIAGNOSIS_ASSET_PATH}/icon-mismatch-high.png`,
 };
 
 function ResultIcon({ typeId, Fallback, size = 140 }) {
@@ -222,6 +240,13 @@ const TYPES = {
     description: '今回の回答では、疲れ・マンネリ・距離・価値観のズレのどれかが強く出ている状態ではなさそうです。\nただし、「悩んでいない」という意味ではありません。頻度、タイミング、温度差、言い出しにくさなど、まだ言葉にしきれていない一点が引っかかっている可能性があります。\n今は原因を決めつけるより、自分が何を寂しいと感じているのかを小さく切り分ける段階です。',
     empathy: ['大きな喧嘩はないのに物足りなさがある', 'レスと言っていいのか迷う', '自分だけが気にしている気がする', 'このままでいいのか少し引っかかる'],
     firstStep: 'まず「回数」ではなく、「何が足りないと感じるか」をひとつだけ言葉にする。安心感、誘われること、触れ合い、会話など、欲しいものを小さく分けてから伝える。',
+    sales: {
+      ngActions: ['小さな違和感を「大したことない」と流し続ける', '相手に言葉で伝える前に諦めてしまう', '比較して自分のレスを軽く見る'],
+      avoidNow: '今すぐ「話し合い」の場を設けようとしなくて大丈夫です。まず自分が何を感じているのかを整理することが先です。',
+      sevenDays: ['1日目：何が「足りない」と感じるか、一言だけ書き出す', '3日目：相手に求めたいことより、自分が欲しい感覚を言葉にする', '7日目：重くならない一言で、ふたりの接点を1つ増やす'],
+      ctaTitle: 'レス度低めタイプの方へ',
+      ctaBody: '今は「大きな問題ではない」と感じていても、違和感を言葉にする前に流すクセがレスを長引かせます。最初の整理方法をnoteにまとめています。',
+    },
   },
   fatigue_low: {
     name: 'おつかれ優先タイプ',
@@ -230,6 +255,13 @@ const TYPES = {
     description: '気持ちは残っていても、仕事・家事・育児などで余白がなく、夫婦の時間にエネルギーを回せない状態です。\n原因は愛情不足ではなく、疲労で「近づく力」と「受け取る力」が落ちていることです。\nその結果、スキンシップや関係づくりが後回しになりやすくなります。',
     empathy: ['夜はまず休むことを優先したい', '嫌いではないのに後回しになる', '休日も回復だけで終わりやすい', '誘われても応える余裕がない'],
     firstStep: '改善より、まずコンディション回復を優先する。疲れ切った夜を避け、朝や昼など余白のある時間に5分だけ会話や軽いスキンシップを戻す。',
+    sales: {
+      ngActions: ['疲れた夜に無理して誘おうとする', '「気持ちはあるのに」と相手に説明しようとする', 'まとめて取り戻そうと休日に詰め込む'],
+      avoidNow: '今の状態で関係改善を急ごうとすると、さらに消耗します。まずは自分のコンディションを戻すことが最初の一歩です。',
+      sevenDays: ['1日目：睡眠と疲労の状態を正直に書き出す', '3日目：夜以外の「余白がある時間帯」を1つ見つける', '7日目：その時間帯に5分の接点を1つ作る'],
+      ctaTitle: 'おつかれ優先タイプの方へ',
+      ctaBody: '疲れているのに無理に誘うとかえって関係が遠くなります。このタイプがやりがちなNG行動と、余白の作り方をnoteにまとめています。',
+    },
   },
   stagnation_low: {
     name: 'マンネリタイプ',
@@ -238,6 +270,13 @@ const TYPES = {
     description: '関係は保ちたい気持ちがあるのに、会話やスキンシップが手順のようになっている状態です。\n原因は嫌悪ではなく、慣れによって新鮮さや期待感が薄れていることです。\nその結果、スキンシップや関係づくりが作業のようになりやすくなります。',
     empathy: ['会話が用件だけになりやすい', 'スキンシップの流れが毎回似ている', 'きっかけがないまま時間が過ぎる', '不満は強くないが物足りない'],
     firstStep: '大きく変えようとせず、場所・時間・誘い方のどれか1つだけ変える。まずは普段しない雑談や軽い外出で、いつもの流れを少し崩す。',
+    sales: {
+      ngActions: ['「何か新しいことをしよう」と大きく変えようとする', 'マンネリを相手のせいにして責める', 'きっかけを待ち続けて何もしない'],
+      avoidNow: '大きく変えようとすると相手に「急にどうした」と警戒されます。まずは一点だけ、いつもと違う小さな行動を試してください。',
+      sevenDays: ['1日目：いつもの会話パターンを書き出す', '3日目：場所か時間かひとつだけ変えてみる', '7日目：変えた後の相手の反応を観察する'],
+      ctaTitle: 'マンネリタイプの方へ',
+      ctaBody: 'マンネリは「慣れ」が原因です。大きな変化は逆効果になることも。このタイプのNG行動と、自然な流れの崩し方をnoteにまとめています。',
+    },
   },
   distance_low: {
     name: '誘えない様子見タイプ',
@@ -246,6 +285,13 @@ const TYPES = {
     description: '誘いたい気持ちはあるのに、断られた時の痛さや気まずさが先に浮かび、行動が止まっている状態です。\n原因は性欲の有無より、「また拒まれるかもしれない」という予測が強くなっていることです。\nその結果、スキンシップや関係づくりの入口で止まりやすくなります。',
     empathy: ['どうせ断られると思ってしまう', '触れる前に相手の顔色を見る', '誘う言葉が出てこない', '近づくほど緊張する'],
     firstStep: 'いきなり誘うより、隣に座る・肩に触れる・笑って話すなど、断られにくい小さな接点から戻す。安心して関われる範囲を探す。',
+    sales: {
+      ngActions: ['不安なまま、いきなり誘い直す', '断られた理由をその場で問い詰める', '何も言わずに距離だけを取る'],
+      avoidNow: '今すぐ必要なのは、勇気を出して誘うことではありません。断られにくい接点を戻し、相手に警戒されない関わり方を作ることです。',
+      sevenDays: ['1日目：断られた時に自分が何を感じたかを書き出す', '3日目：誘う以外の小さな接点を1つ戻す', '7日目：重くならない一言で、安心して話せる空気を作る'],
+      ctaTitle: '拒否不安レスの方へ',
+      ctaBody: '断られた後にやってはいけない行動、妻に重く伝わりにくい言い換え、最初の7日間で戻す接点をnoteにまとめています。',
+    },
   },
   mismatch_low: {
     name: '伝わり違いタイプ',
@@ -254,6 +300,13 @@ const TYPES = {
     description: '相手を思って言った言葉が、責め・要求・否定として受け取られやすい状態です。\n原因は愛情不足ではなく、会話の目的や前提がずれたまま伝え合っていることです。\nその結果、スキンシップや関係づくりの話もすれ違いやすくなります。',
     empathy: ['思いやりが責め言葉に聞こえる', '説明しても違う意味で伝わる', '話すほど誤解が残る', '会話のあとに疲れが残る'],
     firstStep: '結論を急がず、「私はこういう意味で言った」「私はこう受け取った」を確認する。正しさより、受け取り方の差を見える化する。',
+    sales: {
+      ngActions: ['「なぜそう受け取るの？」と問い詰める', '言い方を変えただけで同じ内容を繰り返す', '正しさで押し切ろうとする'],
+      avoidNow: '今の状態で話し合いを続けると、相手には「責められている」と伝わりやすくなります。まずは伝え方の前提を変えることが必要です。',
+      sevenDays: ['1日目：最近すれ違った会話を1つ書き出す', '3日目：自分が「伝えたかったこと」と相手が「受け取ったこと」を分けて書く', '7日目：結論を出さず、受け取り方の確認だけをする'],
+      ctaTitle: '伝わり違いタイプの方へ',
+      ctaBody: 'このタイプは「言い方」より「前提の共有」が鍵です。NG表現と言い換えパターンをnoteにまとめています。',
+    },
   },
   stagnation_high: {
     name: '後回し日常タイプ',
@@ -262,6 +315,13 @@ const TYPES = {
     description: '変化をつける以前に、相手への関心や夫婦時間の優先度が少しずつ下がっている状態です。\n原因はひとつの事件ではなく、関わらない日常に慣れて、接点の価値が下がっていることです。\nその結果、スキンシップや関係づくりを選ぶ理由が弱くなりやすいです。',
     empathy: ['休日も別々に過ごすことが増えた', '相手への興味が前より薄い', '記念日や変化に反応しにくい', '何も起きないまま距離が広がる'],
     firstStep: '原因探しより、接点の回数を増やす。1日5分の会話、短いLINE、同じものを食べるなど、小さく関わる習慣を戻す。',
+    sales: {
+      ngActions: ['「なぜ冷めてしまったのか」と原因を掘り下げる', '関心が薄いことを相手に気づかせようとする', '一度に取り戻そうとして大きな行動に出る'],
+      avoidNow: '原因の分析より先に、接点の習慣を戻すことが必要です。今の状態で話し合いをしても、相手には熱意が伝わりにくくなっています。',
+      sevenDays: ['1日目：今週、相手と何回会話したかを数える', '3日目：1日5分だけ、用件以外の話題を作る', '7日目：小さな接点を1週間続けた変化を確認する'],
+      ctaTitle: '後回し日常タイプの方へ',
+      ctaBody: '興味が薄れたと感じている状態でのNG行動と、接点を自然に増やす方法をnoteにまとめています。',
+    },
   },
   distance_high: {
     name: 'ふれない平和タイプ',
@@ -270,6 +330,13 @@ const TYPES = {
     description: '問題があると分かっていても、話す・触れる・誘うこと自体を避けている状態です。\n原因は無関心ではなく、向き合った時に傷つくことや空気が重くなることを避けたい気持ちです。\nその結果、スキンシップや関係づくりに踏み出しにくくなります。',
     empathy: ['本音の話題を避けてしまう', '空気が重くなるのが怖い', '深い話をしないほうが楽', '現状維持でやり過ごしている'],
     firstStep: '解決まで持っていこうとせず、「最近少し気になってる」など一言だけ共有する。重い話し合いではなく、入口を小さくする。',
+    sales: {
+      ngActions: ['現状維持のまま「いつか話そう」と先延ばしにする', '波風を立てないために本音を完全に隠す', '重い話し合いの場を急に設けようとする'],
+      avoidNow: '今すぐ「ちゃんと話し合おう」とすると、相手は身構えます。まず空気を重くしない「入口の一言」から始めることが必要です。',
+      sevenDays: ['1日目：今自分が一番避けていることを書き出す', '3日目：解決ではなく「共有だけ」を目的にした一言を考える', '7日目：重くならないトーンで、その一言を伝えてみる'],
+      ctaTitle: '波風回避タイプの方へ',
+      ctaBody: '踏み出せないまま時間が経つほど、関係は静かに離れていきます。このタイプのNG行動と、入口を作る言い方をnoteにまとめています。',
+    },
   },
   undecided: {
     name: '原因迷子タイプ',
@@ -278,6 +345,13 @@ const TYPES = {
     description: '疲れ・不満・寂しさ・諦めが混ざり、どれか一つを原因として選びにくい状態です。\n決められないのは弱いからではなく、複数の要因が同時に絡んでいるからです。\nその結果、スキンシップや関係づくりも何から戻せばいいか分かりにくくなります。',
     empathy: ['考えても結論が出ない', '何が一番つらいのか分からない', '話すべきか迷って終わる', 'このままでいいのか揺れている'],
     firstStep: 'まず結論を出さない。「今は寂しい」「迷っている」など、判断ではなく現在地だけを言葉にする。',
+    sales: {
+      ngActions: ['「原因を特定してから動こう」と考えすぎる', '迷っているまま相手に何も言わない', '結論が出ないことを自分の弱さとして責める'],
+      avoidNow: '今すぐ原因を決めようとしなくて大丈夫です。複数の感情が混ざっている状態で結論を出そうとすると、判断が歪みやすくなります。',
+      sevenDays: ['1日目：今感じていることを3つ書き出す（原因でなく感情）', '3日目：一番「重い」と感じる感情を1つ選ぶ', '7日目：その感情だけを、一言で相手に伝えてみる'],
+      ctaTitle: '原因迷子タイプの方へ',
+      ctaBody: '何から手をつけていいか分からない状態での最初の整理法と、混在する感情の分け方をnoteにまとめています。',
+    },
   },
   mismatch_high: {
     name: '平行線会話タイプ',
@@ -286,6 +360,13 @@ const TYPES = {
     description: '会話はしているのに、何を大事にするかが噛み合わず、同じ議題で対立が繰り返される状態です。\n原因は会話量の不足ではなく、前提の違いを整理しないまま話し合っていることです。\nその結果、スキンシップや関係づくりの話も対立に変わりやすくなります。',
     empathy: ['話し合いが同じところで止まる', '理解されない感覚が強い', '責め合いになりやすい', '会話のあとに距離を感じる'],
     firstStep: 'まず勝ち負けの話し合いを止める。意見をぶつける前に、「何を大事にしているか」をひとつずつ確認する。',
+    sales: {
+      ngActions: ['同じ議題で正しさを主張し続ける', '「なぜ分かってくれないのか」と相手の理解力を疑う', '対立を避けるために本音を全部抑える'],
+      avoidNow: '今の状態でまた同じテーマで話し合いを始めると、また同じところで止まります。まず「何を大事にしているか」の確認から入ることが必要です。',
+      sevenDays: ['1日目：最近対立したテーマを1つ書き出す', '3日目：「自分が大事にしていること」と「相手が大事にしていること」を分けて書く', '7日目：正しさでなく、相手が何を守りたいかを聞いてみる'],
+      ctaTitle: '平行線会話タイプの方へ',
+      ctaBody: '対立が繰り返されるのは会話量ではなく前提のズレが原因です。NGワードと、すれ違いを減らす言い換えをnoteにまとめています。',
+    },
   },
 };
 // ═══════════════════════════════════════════════
@@ -396,7 +477,7 @@ function HeroScreen({ onStart }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <img
-            src="eyecatch.png"
+            src={`${TYPE_DIAGNOSIS_ASSET_PATH}/eyecatch.png`}
             alt="夫婦のセックスレスタイプ診断"
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
@@ -933,6 +1014,50 @@ function ResultScreen({ typeId, onRestart }) {
             <p style={{ fontSize: 14, lineHeight: 1.9, margin: 0, color: PALETTE.ink, letterSpacing: 0.3, textAlign: 'center' }}>{t.firstStep}</p>
           </div>
 
+          {/* Sales blocks */}
+          {t.sales && (
+            <>
+              <GoldDivider width={50} style={{ marginTop: 28, marginBottom: 24 }}/>
+
+              {/* NG行動ブロック */}
+              <div style={{ background: `linear-gradient(135deg, #FDF0EA 0%, #FAE8DE 100%)`, borderRadius: 18, padding: '22px 22px 20px', marginBottom: 16, border: `1px solid rgba(201,113,78,.2)` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <span style={{ fontSize: 16 }}>⚠️</span>
+                  <div style={{ fontFamily: '"Zen Maru Gothic", serif', fontSize: 13, fontWeight: 700, color: PALETTE.accent, letterSpacing: 1 }}>このタイプがやりがちなNG行動</div>
+                </div>
+                {t.sales.ngActions.map((action, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '6px 0', fontSize: 14, lineHeight: 1.7, color: PALETTE.ink, letterSpacing: 0.3 }}>
+                    <span style={{ color: '#C9714E', fontWeight: 700, flexShrink: 0, fontSize: 12, marginTop: 3 }}>✕</span>
+                    <span>{action}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* やるべきではないことブロック */}
+              <div style={{ background: `linear-gradient(135deg, #F5F0EA 0%, #EDE6D8 100%)`, borderRadius: 18, padding: '22px 22px 20px', marginBottom: 16, border: `1px solid rgba(200,168,120,.25)` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 16 }}>🛑</span>
+                  <div style={{ fontFamily: '"Zen Maru Gothic", serif', fontSize: 13, fontWeight: 700, color: GOLD_DEEP, letterSpacing: 1 }}>今すぐやるべきではないこと</div>
+                </div>
+                <p style={{ fontSize: 14, lineHeight: 1.9, margin: 0, color: PALETTE.ink, letterSpacing: 0.3 }}>{t.sales.avoidNow}</p>
+              </div>
+
+              {/* 最初の7日間ブロック */}
+              <div style={{ background: `linear-gradient(135deg, #EEF4EE 0%, #E4EEE4 100%)`, borderRadius: 18, padding: '22px 22px 20px', marginBottom: 0, border: `1px solid rgba(100,140,100,.2)` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <span style={{ fontSize: 16 }}>📅</span>
+                  <div style={{ fontFamily: '"Zen Maru Gothic", serif', fontSize: 13, fontWeight: 700, color: '#4A7A4A', letterSpacing: 1 }}>最初の7日間でやること</div>
+                </div>
+                {t.sales.sevenDays.map((step, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', padding: '6px 0', fontSize: 14, lineHeight: 1.7, color: PALETTE.ink, letterSpacing: 0.3 }}>
+                    <span style={{ color: '#4A7A4A', fontWeight: 700, flexShrink: 0, fontSize: 12, marginTop: 3 }}>▶</span>
+                    <span>{step}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 24 }}>
             <div style={{ width: 24, height: 1, background: `linear-gradient(to right, transparent, ${GOLD})` }}/>
             <div style={{ fontSize: 9, letterSpacing: 3, color: GOLD_DEEP, fontWeight: 700 }}>夫婦のセックスレスタイプ診断</div>
@@ -967,22 +1092,32 @@ function ResultScreen({ typeId, onRestart }) {
             <div style={{ width: 16, height: 1, background: `linear-gradient(to right, transparent, ${GOLD})` }}/>
             <div style={{ fontSize: 10, letterSpacing: 3, fontWeight: 700, color: GOLD }}>CONTINUE  READING</div>
           </div>
-          <h3 style={{ fontFamily: '"Zen Maru Gothic", sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.6, letterSpacing: 0.5 }}>
-            あなたのタイプを、<br/>
-            <span style={{ background: `linear-gradient(135deg, #EBD6AE, ${GOLD})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>もう少し深く</span>読み解く。
+          <h3 style={{ fontFamily: '"Zen Maru Gothic", sans-serif', fontSize: 18, fontWeight: 700, margin: '0 0 12px', lineHeight: 1.7, letterSpacing: 0.5 }}>
+            {t.sales ? t.sales.ctaTitle : 'このタイプの対策をもう少し深く。'}
           </h3>
-          <p style={{ fontSize: 13, lineHeight: 1.8, margin: '0 0 20px', color: 'rgba(251,246,237,.65)', letterSpacing: 0.3 }}>タイプ別の関係の整え方、すれ違いの直し方、<br/>1万字のnoteで続きをどうぞ。</p>
-          <button style={{
-            width: '100%', padding: '17px 18px',
-            background: `linear-gradient(135deg, ${PALETTE.accent} 0%, #D98560 50%, ${PALETTE.accent} 100%)`,
-            color: '#FFF8F1', border: 'none', borderRadius: 999,
-            fontSize: 15, fontWeight: 700, letterSpacing: 1.5, fontFamily: 'inherit', cursor: 'pointer',
-            boxShadow: `0 6px 18px rgba(201,113,78,.35)`,
-          }}>
+          <p style={{ fontSize: 13, lineHeight: 1.9, margin: '0 0 20px', color: 'rgba(251,246,237,.75)', letterSpacing: 0.3 }}>
+            {t.sales ? t.sales.ctaBody : 'このタイプが最初に避けるべきNG行動と、今週やるべき具体策をnoteにまとめています。'}
+          </p>
+          <p style={{ fontSize: 12, lineHeight: 1.8, margin: '0 0 20px', color: 'rgba(251,246,237,.55)', letterSpacing: 0.3 }}>
+            妻に言う前に、まず自分の状態を整理したい方は<br/>こちらから続きを読めます。
+          </p>
+          <a
+            href={NOTE_LINKS[typeId] || DEFAULT_NOTE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block', width: '100%', padding: '17px 18px',
+              background: `linear-gradient(135deg, ${PALETTE.accent} 0%, #D98560 50%, ${PALETTE.accent} 100%)`,
+              color: '#FFF8F1', border: 'none', borderRadius: 999,
+              fontSize: 15, fontWeight: 700, letterSpacing: 1.5, fontFamily: 'inherit', cursor: 'pointer',
+              boxShadow: `0 6px 18px rgba(201,113,78,.35)`,
+              textDecoration: 'none', textAlign: 'center',
+            }}
+          >
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: GOLD }}>✦</span> 続きを読む (note) <span>→</span>
+              <span style={{ color: GOLD }}>✦</span> このタイプの対策noteを読む <span>→</span>
             </span>
-          </button>
+          </a>
         </div>
 
         {/* Footer */}
