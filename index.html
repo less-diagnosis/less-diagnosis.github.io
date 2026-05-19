@@ -130,7 +130,7 @@ function ResultIcon({ typeId, Fallback, size = 140 }) {
   if (!src || imageFailed) return <Fallback size={size}/>;
 
   return (
-    <div style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden', background: '#F3EAD9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <img
         src={src}
         alt=""
