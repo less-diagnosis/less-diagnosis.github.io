@@ -130,12 +130,17 @@ function ResultIcon({ typeId, Fallback, size = 140 }) {
   if (!src || imageFailed) return <Fallback size={size}/>;
 
   return (
-    <img
-      src={src}
-      alt=""
+    <div
       aria-hidden="true"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        backgroundImage: `url(${src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
       onError={() => setImageFailed(true)}
-      style={{ width: size, height: size, display: 'block', borderRadius: '50%', objectFit: 'cover' }}
     />
   );
 }
