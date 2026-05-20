@@ -578,7 +578,7 @@ function QuestionCard({ index, total, question, answer, onAnswer, tint, active, 
   const open = active || answered;
 
   return (
-    <div style={{
+    <div id={`question-card-${index - 1}`} style={{
       background: tint.bg, borderRadius: 20,
       padding: open ? '20px 18px 22px' : '16px 18px', marginBottom: 12,
       border: `1px solid rgba(255,255,255,.6)`,
@@ -633,7 +633,13 @@ function QuizScreen({ answers, setAnswers, onSubmit, onBack }) {
   const handleAnswer = (qid, val, idx) => {
     const next = { ...answers, [qid]: val };
     setAnswers(next);
-    if (idx + 1 < total) setTimeout(() => setActiveIdx(idx + 1), 320);
+    if (idx + 1 < total) {
+      setTimeout(() => {
+        setActiveIdx(idx + 1);
+        const nextCard = document.getElementById(`question-card-${idx + 1}`);
+        if (nextCard) nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 320);
+    }
   };
 
   return (
