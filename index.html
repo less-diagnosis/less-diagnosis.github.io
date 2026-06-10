@@ -26,6 +26,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "夫婦のセックスレスタイプ診断",
+  "url": "https://less-diagnosis.github.io/",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Web",
+  "inLanguage": "ja",
+  "description": "12の質問で、夫婦の関係が止まりやすい理由を診断。今の状態と最初の一歩がわかります。",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" }
+}
+</script>
 <style>
   html, body { margin: 0; padding: 0; }
   body { font-family: "Noto Sans JP", -apple-system, sans-serif; color: #3A322C; }
@@ -35,9 +48,16 @@
 </head>
 <body>
 <div id="root"></div>
+<noscript>
+  <div style="max-width:640px;margin:48px auto;padding:0 24px;font-family:sans-serif;color:#3A322C;">
+    <h1>夫婦のセックスレスタイプ診断</h1>
+    <p>12の質問で、夫婦の関係が止まりやすい理由を診断します。この診断の動作にはJavaScriptが必要です。ブラウザの設定でJavaScriptを有効にしてください。</p>
+  </div>
+</noscript>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<!-- 公開サイトでは開発版(development.js)を使わない。本番版はファイルが別物のため、旧integrity値は流用できない -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
 <script type="text/babel">
@@ -62,6 +82,9 @@ const NOTE_LINKS = {
   low_risk:        DEFAULT_NOTE_URL,
 };
 
+// 'note.com/xxxx' を含むURLは未設定（note未公開）として扱い、結果画面のボタンを「近日公開」表示に切り替える
+const isNotePlaceholder = (url) => !url || url.indexOf('note.com/xxxx') !== -1;
+
 // ═══════════════════════════════════════════════
 // Symbols
 // ═══════════════════════════════════════════════
@@ -80,21 +103,21 @@ function SymbolBase({ size = 140, bg = '#F3EAD9', children }) {
   );
 }
 const SymLowRisk = (p) => <SymbolBase {...p}><circle cx="50" cy="50" r="34" stroke={SYM_SOFT} strokeWidth="2" fill="none"/><path d="M 30 52 Q 42 66 54 50 T 74 44" stroke={SYM_ACCENT} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"/><circle cx="34" cy="38" r="5" fill={SYM_INK}/><circle cx="66" cy="38" r="5" fill={SYM_INK}/></SymbolBase>;
-// TYPE_A: 疲れすれ違い → 遠い2点
+// 余白切れ fatigue_low → 遠い2点
 const SymA = (p) => <SymbolBase {...p}><circle cx="18" cy="50" r="9" fill={SYM_INK}/><circle cx="82" cy="50" r="9" fill={SYM_ACCENT}/><line x1="32" y1="50" x2="68" y2="50" stroke={SYM_SOFT} strokeWidth="2" strokeDasharray="3 5" strokeLinecap="round"/></SymbolBase>;
-// TYPE_B: マンネリ → 同心円
+// マンネリ stagnation_low → 同心円
 const SymB = (p) => <SymbolBase {...p}><circle cx="50" cy="50" r="40" stroke={SYM_SOFT} strokeWidth="1.5" fill="none"/><circle cx="50" cy="50" r="26" stroke={SYM_INK} strokeWidth="2" fill="none"/><circle cx="50" cy="50" r="10" fill={SYM_ACCENT}/></SymbolBase>;
-// TYPE_C: 自然体 → 2本並走線
+// 優先度低下 stagnation_high → 2本並走線
 const SymC = (p) => <SymbolBase {...p}><line x1="15" y1="35" x2="85" y2="35" stroke={SYM_INK} strokeWidth="4" strokeLinecap="round"/><line x1="15" y1="65" x2="85" y2="65" stroke={SYM_ACCENT} strokeWidth="4" strokeLinecap="round"/></SymbolBase>;
-// TYPE_D: テンポ不一致 → 交差アーク
+// 受け取りズレ mismatch_low → 交差アーク
 const SymD = (p) => <SymbolBase {...p}><path d="M 12 80 Q 50 10 88 80" stroke={SYM_INK} strokeWidth="3" fill="none" strokeLinecap="round"/><path d="M 12 20 Q 50 90 88 20" stroke={SYM_ACCENT} strokeWidth="3" fill="none" strokeLinecap="round"/></SymbolBase>;
-// TYPE_E: 踏み出せない → 軌道+中心
+// 拒否不安 distance_low → 軌道+中心
 const SymE = (p) => <SymbolBase {...p}><circle cx="50" cy="50" r="38" stroke={SYM_INK} strokeWidth="2" fill="none"/><circle cx="50" cy="50" r="14" fill={SYM_ACCENT}/></SymbolBase>;
-// TYPE_F: 育児余裕不足 → 地平線+太陽
+// 原因混在 undecided → 地平線+太陽
 const SymF = (p) => <SymbolBase {...p}><line x1="10" y1="62" x2="90" y2="62" stroke={SYM_INK} strokeWidth="2" strokeLinecap="round"/><circle cx="50" cy="44" r="14" fill={SYM_ACCENT}/></SymbolBase>;
-// TYPE_G: 世話焼き → 対話弧
+// 波風回避 distance_high → 対話弧
 const SymG = (p) => <SymbolBase {...p}><path d="M 40 30 A 22 22 0 0 0 40 70" stroke={SYM_INK} strokeWidth="4" fill="none" strokeLinecap="round"/><path d="M 60 30 A 22 22 0 0 1 60 70" stroke={SYM_ACCENT} strokeWidth="4" fill="none" strokeLinecap="round"/></SymbolBase>;
-// TYPE_H: すれ違い → 重なる2円
+// 価値観対立 mismatch_high → 重なる2円
 const SymH = (p) => <SymbolBase {...p}><circle cx="32" cy="50" r="22" fill={SYM_INK}/><circle cx="68" cy="50" r="22" fill={SYM_ACCENT}/></SymbolBase>;
 
 const Symbols = {
@@ -124,10 +147,21 @@ const RESULT_ICON_IMAGES = {
 };
 
 function ResultIcon({ typeId, Fallback, size = 140 }) {
-  const [imageFailed, setImageFailed] = useState(false);
+  // background-imageのdivはonErrorが発火しないため、Imageオブジェクトで読み込み成否を判定する
   const src = RESULT_ICON_IMAGES[typeId];
+  const [imageReady, setImageReady] = useState(false);
 
-  if (!src || imageFailed) return <Fallback size={size}/>;
+  useEffect(() => {
+    if (!src) return;
+    let alive = true;
+    const img = new Image();
+    img.onload = () => { if (alive) setImageReady(true); };
+    img.onerror = () => { if (alive) setImageReady(false); };
+    img.src = src;
+    return () => { alive = false; };
+  }, [src]);
+
+  if (!src || !imageReady) return <Fallback size={size}/>;
 
   return (
     <div
@@ -140,7 +174,6 @@ function ResultIcon({ typeId, Fallback, size = 140 }) {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
-      onError={() => setImageFailed(true)}
     />
   );
 }
@@ -160,13 +193,13 @@ const QUESTIONS = [
   { id: 'Q2', axis: 'fatigue', text: '寝る時間や寝室がずれていて、自然に近づく時間が少ない' },
   { id: 'Q3', axis: 'fatigue', text: '家事や仕事、子育てが終わると、夫婦のことを考える余力がない' },
   { id: 'Q4', axis: 'stagnation', text: 'ふたりの会話が、連絡事項や用件だけになりやすい' },
-  { id: 'Q5', axis: 'stagnation', text: 'SEXやスキンシップの流れが毎回同じで、新鮮さがない' },
+  { id: 'Q5', axis: 'stagnation', text: 'セックスやスキンシップの流れが毎回同じで、新鮮さがない' },
   { id: 'Q6', axis: 'stagnation', text: '夫婦で過ごすことより、自分の予定や一人時間を優先することが増えた' },
   { id: 'Q7', axis: 'distance', text: '誘おうとしても、「どうせ断られる」と思って言い出せない' },
   { id: 'Q8', axis: 'distance', text: 'スキンシップをしようとすると、どちらかが身構える感じがある' },
   { id: 'Q9', axis: 'distance', text: '本音を言うと責め合いになりそうで、話題を避けてしまう' },
   { id: 'Q10', axis: 'mismatch', text: 'スキンシップが減った理由を聞いても、「別に」「わからない」で終わってしまう' },
-  { id: 'Q11', axis: 'mismatch', text: 'SEXやスキンシップの話をしても、いつも同じところで平行線になる' },
+  { id: 'Q11', axis: 'mismatch', text: 'セックスやスキンシップの話をしても、いつも同じところで平行線になる' },
   { id: 'Q12', axis: 'mismatch', text: '相手を思って言ったことが、責めているように受け取られることがある' },
 ];
 
@@ -292,8 +325,8 @@ const TYPES = {
       ngActions: ['不安なまま、いきなり誘い直す', '断られた理由をその場で問い詰める', '何も言わずに距離だけを取る'],
       avoidNow: '今すぐ必要なのは、勇気を出して誘うことではありません。断られにくい接点を戻し、相手に警戒されない関わり方を作ることです。',
       sevenDays: ['1日目：断られた時に自分が何を感じたかを書き出す', '3日目：誘う以外の小さな接点を1つ戻す', '7日目：重くならない一言で、安心して話せる空気を作る'],
-      ctaTitle: '拒否不安レスの方へ',
-      ctaBody: '断られた後にやってはいけない行動、妻に重く伝わりにくい言い換え、最初の7日間で戻す接点をnoteにまとめています。',
+      ctaTitle: '誘えない様子見タイプの方へ',
+      ctaBody: '断られた後にやってはいけない行動、相手に重く伝わりにくい言い換え、最初の7日間で戻す接点をnoteにまとめています。',
     },
   },
   mismatch_low: {
@@ -337,7 +370,7 @@ const TYPES = {
       ngActions: ['現状維持のまま「いつか話そう」と先延ばしにする', '波風を立てないために本音を完全に隠す', '重い話し合いの場を急に設けようとする'],
       avoidNow: '今すぐ「ちゃんと話し合おう」とすると、相手は身構えます。まず空気を重くしない「入口の一言」から始めることが必要です。',
       sevenDays: ['1日目：今自分が一番避けていることを書き出す', '3日目：解決ではなく「共有だけ」を目的にした一言を考える', '7日目：重くならないトーンで、その一言を伝えてみる'],
-      ctaTitle: '波風回避タイプの方へ',
+      ctaTitle: 'ふれない平和タイプの方へ',
       ctaBody: '踏み出せないまま時間が経つほど、関係は静かに離れていきます。このタイプのNG行動と、入口を作る言い方をnoteにまとめています。',
     },
   },
@@ -624,7 +657,11 @@ function QuestionCard({ index, total, question, answer, onAnswer, tint, active, 
 }
 
 function QuizScreen({ answers, setAnswers, onSubmit, onBack }) {
-  const [activeIdx, setActiveIdx] = useState(0);
+  // 途中保存からの再訪時は、最初の未回答質問にフォーカスを合わせる
+  const [activeIdx, setActiveIdx] = useState(() => {
+    const firstUnanswered = QUESTIONS.findIndex(q => answers[q.id] === undefined || answers[q.id] === null);
+    return firstUnanswered === -1 ? QUESTIONS.length - 1 : firstUnanswered;
+  });
   // answers は { [id]: 0|1|2 } なのでキー数で判定
   const answered = QUESTIONS.filter(q => answers[q.id] !== undefined && answers[q.id] !== null).length;
   const total = QUESTIONS.length;
@@ -715,7 +752,7 @@ function getTypeLabel(typeId) {
 }
 
 function getResultShareText(t, typeId) {
-  return `夫婦のセックスレスタイプ診断\n${getTypeLabel(typeId)} ${t.name}\nレスにつながる主な原因：${t.cause}\n「${t.tagline}」\n\n${t.description.replace(/\n/g, '\n')}\n\n最初の一歩：${t.firstStep}`;
+  return `夫婦のセックスレスタイプ診断\n${getTypeLabel(typeId)} ${t.name}\nレスにつながる主な原因：${t.cause}\n「${t.tagline}」\n\n${t.description}\n\n最初の一歩：${t.firstStep}\n\n${SITE_URL}`;
 }
 
 function copyTextFallback(text) {
@@ -826,8 +863,12 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 99) {
   });
   if (line) lines.push(line);
 
-  lines.slice(0, maxLines).forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
-  return y + Math.min(lines.length, maxLines) * lineHeight;
+  const shown = lines.slice(0, maxLines);
+  if (lines.length > maxLines && shown.length) {
+    shown[shown.length - 1] = shown[shown.length - 1].slice(0, -1) + '…';
+  }
+  shown.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineHeight));
+  return y + shown.length * lineHeight;
 }
 
 function saveResultImage(t, typeId) {
@@ -928,6 +969,8 @@ function ResultScreen({ typeId, onRestart }) {
   const t = TYPES[typeId] || TYPES[TYPE_KEYS[0]];
   const Sym = Symbols[typeId] || Symbols[TYPE_KEYS[0]];
   const resultMeta = getResultMeta(typeId);
+  const noteUrl = NOTE_LINKS[typeId] || DEFAULT_NOTE_URL;
+  const noteReady = !isNotePlaceholder(noteUrl);
   const handleSaveImage = () => saveResultImage(t, typeId);
   const handleShare = () => shareResult(t, typeId);
   const handleShareDiagnosis = () => shareDiagnosis();
@@ -1081,9 +1124,12 @@ function ResultScreen({ typeId, onRestart }) {
             <span>📷</span>画像で保存
           </button>
           <button onClick={handleShare} style={{ flex: 1, padding: '15px 10px', background: 'rgba(255,255,255,.75)', color: PALETTE.ink, border: `1px solid rgba(200,168,120,.35)`, borderRadius: 999, fontSize: 14, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, backdropFilter: 'blur(6px)' }}>
-            <span>✕</span>結果をシェア
+            <span>📤</span>結果をシェア
           </button>
         </div>
+        <button onClick={handleShareDiagnosis} style={{ width: '100%', padding: '13px 10px', marginBottom: 16, background: 'transparent', color: GOLD_DEEP, border: '1px dashed rgba(200,168,120,.45)', borderRadius: 999, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <span>🔗</span>この診断をパートナーに送る
+        </button>
         {/* CTA note */}
         <div style={{
           background: `radial-gradient(ellipse at 20% 0%, rgba(201,113,78,.25) 0%, transparent 55%), linear-gradient(135deg, #2F2722 0%, #3A322C 100%)`,
@@ -1104,25 +1150,39 @@ function ResultScreen({ typeId, onRestart }) {
             {t.sales ? t.sales.ctaBody : 'このタイプが最初に避けるべきNG行動と、今週やるべき具体策をnoteにまとめています。'}
           </p>
           <p style={{ fontSize: 12, lineHeight: 1.8, margin: '0 0 20px', color: 'rgba(251,246,237,.55)', letterSpacing: 0.3 }}>
-            妻に言う前に、まず自分の状態を整理したい方は<br/>こちらから続きを読めます。
+            このサイトの作者は、夫の立場でセックスレスと向き合ってきました。<br/>関係を戻すために「男性側がどう動くか」を、タイプ別にnoteで整理しています。
           </p>
-          <a
-            href={NOTE_LINKS[typeId] || DEFAULT_NOTE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'block', width: '100%', padding: '17px 18px',
-              background: `linear-gradient(135deg, ${PALETTE.accent} 0%, #D98560 50%, ${PALETTE.accent} 100%)`,
-              color: '#FFF8F1', border: 'none', borderRadius: 999,
-              fontSize: 15, fontWeight: 700, letterSpacing: 1.5, fontFamily: 'inherit', cursor: 'pointer',
-              boxShadow: `0 6px 18px rgba(201,113,78,.35)`,
-              textDecoration: 'none', textAlign: 'center',
-            }}
-          >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: GOLD }}>✦</span> このタイプの対策noteを読む <span>→</span>
-            </span>
-          </a>
+          {noteReady ? (
+            <a
+              href={noteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'block', width: '100%', padding: '17px 18px',
+                background: `linear-gradient(135deg, ${PALETTE.accent} 0%, #D98560 50%, ${PALETTE.accent} 100%)`,
+                color: '#FFF8F1', border: 'none', borderRadius: 999,
+                fontSize: 15, fontWeight: 700, letterSpacing: 1.5, fontFamily: 'inherit', cursor: 'pointer',
+                boxShadow: `0 6px 18px rgba(201,113,78,.35)`,
+                textDecoration: 'none', textAlign: 'center',
+              }}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: GOLD }}>✦</span> このタイプの対策noteを読む <span>→</span>
+              </span>
+            </a>
+          ) : (
+            <div style={{
+              width: '100%', padding: '17px 18px',
+              background: 'rgba(251,246,237,.08)',
+              color: 'rgba(251,246,237,.65)', borderRadius: 999,
+              border: '1px dashed rgba(200,168,120,.5)',
+              fontSize: 14, fontWeight: 700, letterSpacing: 1.5, textAlign: 'center',
+            }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: GOLD }}>✦</span> タイプ別の対策noteは近日公開です
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
