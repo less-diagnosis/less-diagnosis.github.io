@@ -207,66 +207,64 @@ const QUESTIONS = [
 const AXIS_ORDER = ['fatigue', 'stagnation', 'distance', 'mismatch'];
 const TYPE_KEYS = ['fatigue_low','stagnation_low','distance_low','mismatch_low','stagnation_high','distance_high','undecided','mismatch_high'];
 
-const AXIS_TO_TYPES = {
-  fatigue: { low: 'fatigue_low', high: 'fatigue_low' },
-  stagnation: { low: 'stagnation_low', high: 'stagnation_high' },
-  distance: { low: 'distance_low', high: 'distance_high' },
-  mismatch: { low: 'mismatch_low', high: 'mismatch_high' },
-};
-
-const AXIS_HIGH_THRESHOLD = {
-  fatigue: 4,
-  stagnation: 4,
-  distance: 4,
-  mismatch: 4,
-};
-
-function scoreAnswers(answers) {
+function computeAxisScores(answers) {
   const scores = AXIS_ORDER.reduce((acc, axis) => ({ ...acc, [axis]: 0 }), {});
-  const values = [];
   const answerValues = {};
 
   QUESTIONS.forEach(q => {
     const value = Number(answers[q.id]);
     if (Number.isFinite(value)) {
       scores[q.axis] += value;
-      values.push(value);
       answerValues[q.id] = value;
     }
   });
 
+  return { scores, answerValues, answeredCount: Object.keys(answerValues).length };
+}
+
+function scoreAnswers(answers) {
+  const { scores, answerValues, answeredCount } = computeAxisScores(answers);
+  // 全問回答が揃うまで判定しない（途中復元時に誤ったタイプを出さない）
+  if (answeredCount !== QUESTIONS.length) return null;
+
+  const totalScore = AXIS_ORDER.reduce((sum, axis) => sum + scores[axis], 0);
+  if (totalScore <= 3) return 'low_risk';
+
+  // 同点時は「はい」(2点)の数が多い軸＝はっきり自覚がある軸を優先する
+  const yesCount = axis => QUESTIONS.filter(q => q.axis === axis && answerValues[q.id] === 2).length;
   const sorted = AXIS_ORDER
-    .map(axis => ({ axis, score: scores[axis] }))
-    .sort((a, b) => b.score - a.score);
+    .map(axis => ({ axis, score: scores[axis], yes: yesCount(axis) }))
+    .sort((a, b) => (b.score - a.score) || (b.yes - a.yes));
   const top = sorted[0];
   const second = sorted[1];
-  const allAnswered = values.length === QUESTIONS.length;
-  const totalScore = values.reduce((sum, value) => sum + value, 0);
-  const allMiddleAnswers = allAnswered && values.every(value => value === 1);
+
+  // 原因が1つに絞れない回答パターンは「原因迷子」に倒す
   const scoreKinds = new Set(AXIS_ORDER.map(axis => scores[axis]));
-  const exactScoreTie = allAnswered && top.score > 0 && scoreKinds.size === 1;
-  const middleAnswers = values.filter(value => value === 1).length;
+  const exactScoreTie = top.score > 0 && scoreKinds.size === 1;
+  const topTieAxes = sorted.filter(item => item.score === top.score && item.yes === top.yes && item.score >= 3).length;
+  const middleAnswers = Object.values(answerValues).filter(value => value === 1).length;
   const highAxes = sorted.filter(item => item.score >= 4).length;
-  const topTieAxes = sorted.filter(item => item.score === top.score && item.score >= 3).length;
-  const broadMixedCauses = allAnswered && top.score <= 4 && top.score - second.score <= 1 && highAxes >= 2 && middleAnswers >= 4;
+  const broadMixedCauses = top.score <= 4 && top.score - second.score <= 1 && highAxes >= 2 && middleAnswers >= 4;
+  if (exactScoreTie || topTieAxes >= 2 || broadMixedCauses) return 'undecided';
 
-  if (allAnswered && totalScore <= 3) {
-    return 'low_risk';
-  }
-
-  if (allMiddleAnswers || exactScoreTie || topTieAxes >= 2 || broadMixedCauses) {
-    return 'undecided';
-  }
+  // 同じ軸の中の2タイプは、点数の高さではなく「どの質問に強く当てはまったか」で分ける
+  if (top.axis === 'fatigue') return 'fatigue_low';
 
   if (top.axis === 'stagnation') {
-    const routineScore = (answerValues.Q4 || 0) + (answerValues.Q5 || 0);
-    const priorityDropScore = answerValues.Q6 || 0;
-    const priorityDropIsMain = priorityDropScore === 2 || (priorityDropScore === 1 && routineScore <= 2 && top.score >= 3);
-    return priorityDropIsMain ? 'stagnation_high' : 'stagnation_low';
+    const routine = (answerValues.Q4 || 0) + (answerValues.Q5 || 0);   // マンネリ（Q4・Q5）
+    const priorityDrop = (answerValues.Q6 || 0) * 2;                    // 優先度低下（Q6を同じ重みに換算）
+    return priorityDrop > routine ? 'stagnation_high' : 'stagnation_low';
   }
 
-  const intensity = top.score >= AXIS_HIGH_THRESHOLD[top.axis] ? 'high' : 'low';
-  return AXIS_TO_TYPES[top.axis][intensity];
+  if (top.axis === 'distance') {
+    const rejectionFear = answerValues.Q7 || 0; // 拒否不安（Q7）
+    const avoidance = answerValues.Q9 || 0;     // 波風回避（Q9）。Q8は両タイプ共通のシグナル
+    return avoidance > rejectionFear ? 'distance_high' : 'distance_low';
+  }
+
+  const misread = answerValues.Q12 || 0;  // 受け取りズレ（Q12）
+  const conflict = answerValues.Q11 || 0; // 価値観対立（Q11）。Q10は両タイプ共通のシグナル
+  return conflict > misread ? 'mismatch_high' : 'mismatch_low';
 }
 
 const TYPES = {
@@ -966,7 +964,47 @@ function saveResultImage(t, typeId) {
   link.click();
   document.body.removeChild(link);
 }
-function ResultScreen({ typeId, onRestart }) {
+const AXIS_LABELS = {
+  fatigue: '疲れ・余白のなさ',
+  stagnation: 'マンネリ・後回し',
+  distance: '誘いにくさ・距離',
+  mismatch: 'すれ違い・平行線',
+};
+
+function AxisBreakdown({ answers }) {
+  const { scores, answeredCount } = computeAxisScores(answers || {});
+  if (answeredCount !== QUESTIONS.length) return null;
+  const max = 6;
+  const topScore = Math.max(...AXIS_ORDER.map(axis => scores[axis]));
+
+  return (
+    <div style={{ background: 'rgba(255,255,255,.6)', borderRadius: 18, padding: '20px 22px 16px', marginTop: 20, border: `1px solid rgba(200,168,120,.25)` }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 }}>
+        <div style={{ width: 20, height: 1, background: `linear-gradient(to right, transparent, ${GOLD})` }}/>
+        <div style={{ fontFamily: '"Zen Maru Gothic", serif', fontSize: 10, letterSpacing: 2.5, color: GOLD_DEEP, fontWeight: 700 }}>回答の内訳</div>
+        <div style={{ width: 20, height: 1, background: `linear-gradient(to left, transparent, ${GOLD})` }}/>
+      </div>
+      {AXIS_ORDER.map(axis => {
+        const score = scores[axis];
+        const isTop = topScore > 0 && score === topScore;
+        return (
+          <div key={axis} style={{ padding: '5px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 12, marginBottom: 5, letterSpacing: 0.3 }}>
+              <span style={{ fontWeight: isTop ? 700 : 500, color: isTop ? PALETTE.accent : PALETTE.ink }}>{AXIS_LABELS[axis]}</span>
+              <span style={{ color: PALETTE.sub, fontSize: 11 }}>{score} / {max}</span>
+            </div>
+            <div style={{ height: 8, background: 'rgba(232,221,203,.6)', borderRadius: 999, overflow: 'hidden', border: `1px solid rgba(200,168,120,.2)` }}>
+              <div style={{ width: `${(score / max) * 100}%`, height: '100%', borderRadius: 999, background: isTop ? `linear-gradient(90deg, ${GOLD} 0%, ${PALETTE.accent} 100%)` : 'rgba(200,168,120,.5)', transition: 'width .6s ease' }}/>
+            </div>
+          </div>
+        );
+      })}
+      <p style={{ fontSize: 11, lineHeight: 1.8, margin: '12px 0 0', color: PALETTE.sub, textAlign: 'center', letterSpacing: 0.3 }}>いちばん高い項目を入口に、今回のタイプを判定しています。</p>
+    </div>
+  );
+}
+
+function ResultScreen({ typeId, answers, onRestart }) {
   const t = TYPES[typeId] || TYPES[TYPE_KEYS[0]];
   const Sym = Symbols[typeId] || Symbols[TYPE_KEYS[0]];
   const resultMeta = getResultMeta(typeId);
@@ -1066,6 +1104,9 @@ function ResultScreen({ typeId, onRestart }) {
             </div>
             <p style={{ fontSize: 14, lineHeight: 1.9, margin: 0, color: PALETTE.ink, letterSpacing: 0.3, textAlign: 'center' }}>{t.firstStep}</p>
           </div>
+
+          {/* Axis breakdown */}
+          <AxisBreakdown answers={answers}/>
 
           {/* Sales blocks */}
           {t.sales && (
@@ -1213,8 +1254,13 @@ function App() {
 
   const computedType = useMemo(() => scoreAnswers(answers), [answers]);
 
+  // 回答が揃っていないのに結果画面が復元された場合はヒーローに戻す
+  useEffect(() => {
+    if (screen === 'result' && !computedType) setScreen('hero');
+  }, [screen, computedType]);
+
   if (screen === 'quiz') return <QuizScreen answers={answers} setAnswers={setAnswers} onSubmit={() => setScreen('result')} onBack={() => setScreen('hero')} />;
-  if (screen === 'result') return <ResultScreen typeId={computedType} onRestart={() => { setAnswers({}); setScreen('hero'); }} />;
+  if (screen === 'result') return computedType ? <ResultScreen typeId={computedType} answers={answers} onRestart={() => { setAnswers({}); setScreen('hero'); }} /> : null;
   return <HeroScreen onStart={() => setScreen('quiz')} />;
 }
 
