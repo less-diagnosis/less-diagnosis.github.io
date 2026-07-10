@@ -78,8 +78,7 @@ const RESULTS = [
 
 const state = {
   current: 0,
-  answers: Array(QUESTIONS.length).fill(null),
-  advanceTimer: 0
+  answers: Array(QUESTIONS.length).fill(null)
 };
 
 const screens = {
@@ -123,7 +122,6 @@ function getRevealThrough() {
 }
 
 function startQuiz() {
-  clearTimeout(state.advanceTimer);
   state.current = 0;
   state.answers = Array(QUESTIONS.length).fill(null);
   renderQuiz();
@@ -151,8 +149,9 @@ function renderQuiz() {
       isActive ? "is-active" : "",
       isLocked ? "is-locked" : ""
     ].filter(Boolean).join(" ");
-    const meta = isAnswered
-      ? `<span class="summary-answer">${answer}点</span>`
+    const selectedOption = OPTIONS.find(option => option.value === answer);
+    const meta = isAnswered && selectedOption
+      ? `<span class="summary-answer">${escapeHtml(selectedOption.label)}</span>`
       : `<span class="summary-meta">${index + 1} / ${QUESTIONS.length}</span>`;
     const body = isOpen ? renderQuestionBody(question, index, answer) : "";
 
@@ -197,7 +196,6 @@ function renderQuestionBody(question, index, answer) {
               data-value="${option.value}">
               <span class="choice-main">
                 <span>${escapeHtml(option.label)}</span>
-                <span class="choice-score">${option.value}点</span>
               </span>
             </button>
           `;
@@ -208,7 +206,6 @@ function renderQuestionBody(question, index, answer) {
 }
 
 function openQuestion(index) {
-  clearTimeout(state.advanceTimer);
   const questionIndex = Number(index);
   if (questionIndex > getRevealThrough()) return;
   state.current = questionIndex;

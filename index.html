@@ -130,8 +130,6 @@ const Symbols = {
   distance_high: SymG,
   mismatch_low: SymD,
   mismatch_high: SymH,
-  TYPE_A: SymA, TYPE_B: SymB, TYPE_C: SymC, TYPE_D: SymD,
-  TYPE_E: SymE, TYPE_F: SymF, TYPE_G: SymG, TYPE_H: SymH,
 };
 
 const RESULT_ICON_IMAGES = {
@@ -241,7 +239,8 @@ function scoreAnswers(answers) {
   // 原因が1つに絞れない回答パターンは「原因迷子」に倒す
   const scoreKinds = new Set(AXIS_ORDER.map(axis => scores[axis]));
   const exactScoreTie = top.score > 0 && scoreKinds.size === 1;
-  const topTieAxes = sorted.filter(item => item.score === top.score && item.yes === top.yes && item.score >= 3).length;
+  // 首位の軸が2点以上で同点・同「はい」数なら、どちらか一方に決めず「原因迷子」にする（回答順や軸の並び順で結果が変わるのを防ぐ）
+  const topTieAxes = sorted.filter(item => item.score === top.score && item.yes === top.yes && item.score >= 2).length;
   const middleAnswers = Object.values(answerValues).filter(value => value === 1).length;
   const highAxes = sorted.filter(item => item.score >= 4).length;
   const broadMixedCauses = top.score <= 4 && top.score - second.score <= 1 && highAxes >= 2 && middleAnswers >= 4;
@@ -669,10 +668,12 @@ function QuizScreen({ answers, setAnswers, onSubmit, onBack }) {
   const handleAnswer = (qid, val, idx) => {
     const next = { ...answers, [qid]: val };
     setAnswers(next);
-    if (idx + 1 < total) {
+    // 回答済みの質問を修正した場合も、次に進む先は「最初の未回答質問」にする（全問回答済みなら動かさない）
+    const firstUnanswered = QUESTIONS.findIndex(q => next[q.id] === undefined || next[q.id] === null);
+    if (firstUnanswered !== -1) {
       setTimeout(() => {
-        setActiveIdx(idx + 1);
-        const nextCard = document.getElementById(`question-card-${idx + 1}`);
+        setActiveIdx(firstUnanswered);
+        const nextCard = document.getElementById(`question-card-${firstUnanswered}`);
         if (nextCard) nextCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 320);
     }
@@ -971,11 +972,17 @@ const AXIS_LABELS = {
   mismatch: 'すれ違い・平行線',
 };
 
-function AxisBreakdown({ answers }) {
+function AxisBreakdown({ answers, typeId }) {
   const { scores, answeredCount } = computeAxisScores(answers || {});
   if (answeredCount !== QUESTIONS.length) return null;
   const max = 6;
   const topScore = Math.max(...AXIS_ORDER.map(axis => scores[axis]));
+  // 判定ロジックと説明文をずらさない：low_risk / undecided は「最上位の軸」で決めていないため文言を変える
+  const footnote = typeId === 'low_risk'
+    ? 'どの項目も大きくは高くない状態のため、参考として内訳を表示しています。'
+    : typeId === 'undecided'
+      ? '複数の項目が同じくらい高いため、原因をひとつに絞らずに判定しています。'
+      : 'いちばん高い項目を入口に、今回のタイプを判定しています。';
 
   return (
     <div style={{ background: 'rgba(255,255,255,.6)', borderRadius: 18, padding: '20px 22px 16px', marginTop: 20, border: `1px solid rgba(200,168,120,.25)` }}>
@@ -999,7 +1006,7 @@ function AxisBreakdown({ answers }) {
           </div>
         );
       })}
-      <p style={{ fontSize: 11, lineHeight: 1.8, margin: '12px 0 0', color: PALETTE.sub, textAlign: 'center', letterSpacing: 0.3 }}>いちばん高い項目を入口に、今回のタイプを判定しています。</p>
+      <p style={{ fontSize: 11, lineHeight: 1.8, margin: '12px 0 0', color: PALETTE.sub, textAlign: 'center', letterSpacing: 0.3 }}>{footnote}</p>
     </div>
   );
 }
@@ -1106,7 +1113,7 @@ function ResultScreen({ typeId, answers, onRestart }) {
           </div>
 
           {/* Axis breakdown */}
-          <AxisBreakdown answers={answers}/>
+          <AxisBreakdown answers={answers} typeId={typeId}/>
 
           {/* Sales blocks */}
           {t.sales && (
